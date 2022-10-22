@@ -13,9 +13,9 @@ WLEDSync::WLEDSync() {
 
 void WLEDSync::begin() {
   #ifndef ESP8266
-    fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
+    udpSyncConnected = fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
   #else
-    fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
+    udpSyncConnected = fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
   #endif
 }
 
@@ -106,9 +106,9 @@ void WLEDSync::decodeAudioData(int packetSize, uint8_t *fftBuff) {
   //These values are only available on the ESP32
   for (int i = 0; i < NUM_GEQ_CHANNELS; i++) {
     fftResult[i] = receivedPacket->fftResult[i];
-    Serial.printf("%u ", fftResult[i]);
+    // Serial.printf("%u ", fftResult[i]);
   }
-  Serial.println(" 100");
+  // Serial.println(" 100");
 
   my_magnitude  = fmaxf(receivedPacket->FFT_Magnitude, 0.0f);
   FFT_Magnitude = my_magnitude;

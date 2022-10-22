@@ -11,7 +11,7 @@
 #define UDP_SYNC_HEADER_v1 "00001"
 #define UDP_SYNC_HEADER "00002"
 #define UDP_SYNC_PORT 11988
-#define NUM_GEQ_CHANNELS 16                     // number of frequency channels. Don't change !!
+#define NUM_GEQ_CHANNELS 16  // number of frequency channels. Don't change !!
 
 struct audioSyncPacket {
   char    header[6];      //  06 Bytes
