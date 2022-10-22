@@ -31,6 +31,7 @@ class WLEDSync {
     
     WLEDSync();
 
+    void begin();
     void send(audioSyncPacket transmitData);
 };
 #endif

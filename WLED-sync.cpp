@@ -6,8 +6,11 @@
   }
 
 WLEDSync::WLEDSync() {
+}
+
+void WLEDSync::begin() {
   #ifndef ESP8266
-  fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
+    fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
   #else
     fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
   #endif

@@ -8,7 +8,6 @@
 #else // ESP32
 #include <WiFi.h>
 #endif
-#include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <WLED-sync.h> // https://github.com/netmindz/WLED-sync
 
@@ -78,7 +77,8 @@ void setup() {
   });
 
   ArduinoOTA.begin();
-
+  
+  sync.begin();
 }
 
 void loop() {
@@ -93,16 +93,13 @@ void loop() {
       val = mapNoise(val);
       Serial.printf("%u ", val);
       transmitData.fftResult[b] = val;
-      transmitData.fftResult[(b + 1)] = val;
+      transmitData.fftResult[(b + 1)] = val;  
     }
-    int v = map(MSGEQ7.getVolume(), 0, 255, 0, 1023);
-    // TODO: not sure any of these are right
-    // transmitData.sample = v; // Current sample
-    // transmitData.sampleAgc = v; // Our AGC sample
-    // transmitData.sampleAvg = v; // Gain adjusted sample value
-    
     Serial.println();
 
+    int v = map(MSGEQ7.getVolume(), 0, MSGEQ7_OUT_MAX, 0, 1023); // TODO: not sure this is right
+    transmitData.sampleRaw = v; // Current sample
+    
     sync.send(transmitData);
   }
 
