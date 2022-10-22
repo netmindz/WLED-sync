@@ -1,4 +1,14 @@
-#define UDP_SYNC_HEADER "00001"
+/**
+ * @brief WLED Audio Sync
+ * 
+ */
+#ifndef WLEDSYNC_H_
+#define WLEDSYNC_H_
+
+#include "Arduino.h"
+
+#define UDP_SYNC_HEADER "00002"
+
 struct audioSyncPacket {
   char    header[6];      //  06 Bytes
   float   sampleRaw;      //  04 Bytes  - either "sampleRaw" or "rawSampleAgc" depending on soundAgc setting
@@ -10,3 +20,4 @@ struct audioSyncPacket {
   float  FFT_MajorPeak;   //  04 Bytes
 };
 
+#endif
