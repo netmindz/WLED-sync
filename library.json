@@ -1,0 +1,19 @@
+{
+  "name": "WLED-sync",
+  "keywords": "wled, audio, sync",
+  "description": "Library to send and recieve WLED compatible Audio Sync data",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netmindz/WLED-sync.git"
+  },
+  "version": "0.14.0",
+  "authors": {
+    "name": "Will Tatam",
+    "url": "http://netmindz.net",
+    "maintainer": true
+  },
+  "frameworks": "arduino",
+  "platforms": [
+    "espressif",
+  ]
+}
