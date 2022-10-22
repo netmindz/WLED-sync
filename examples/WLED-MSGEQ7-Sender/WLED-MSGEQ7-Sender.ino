@@ -10,7 +10,7 @@
 #endif
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include <WLED-sync.h>
+#include <WLED-sync.h> // https://github.com/netmindz/WLED-sync
 
 #include "wifi.h"
 // Create file with the following
@@ -33,9 +33,7 @@ const char passphrase[] = SECRET_PSK;
 
 CMSGEQ7<MSGEQ7_SMOOTH, pinReset, pinStrobe, pinAnalogLeft, pinAnalogRight> MSGEQ7;
 
-WiFiUDP fftUdp;
-
-uint16_t audioSyncPort = 20000;
+WLEDSync sync;
 
 void setup() {
   Serial.begin(115200);
@@ -49,11 +47,6 @@ void setup() {
   Serial.print("\nConnected! IP address: ");
   Serial.println(WiFi.localIP());
 
-#ifndef ESP8266
-  fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), audioSyncPort);
-#else
-  fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), audioSyncPort);
-#endif
   // This will set the IC ready for reading
   MSGEQ7.begin();
 
@@ -110,9 +103,7 @@ void loop() {
     
     Serial.println();
 
-    fftUdp.beginMulticastPacket();
-    fftUdp.write(reinterpret_cast<uint8_t *>(&transmitData), sizeof(transmitData));
-    fftUdp.endPacket();
+    sync.send(transmitData);
   }
 
 }

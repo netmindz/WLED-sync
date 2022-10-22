@@ -6,8 +6,10 @@
 #define WLEDSYNC_H_
 
 #include "Arduino.h"
+#include <WiFiUdp.h>
 
 #define UDP_SYNC_HEADER "00002"
+#define UDP_SYNC_PORT 11988
 
 struct audioSyncPacket {
   char    header[6];      //  06 Bytes
@@ -20,4 +22,15 @@ struct audioSyncPacket {
   float  FFT_MajorPeak;   //  04 Bytes
 };
 
+class WLEDSync {
+
+  private:
+    WiFiUDP fftUdp;
+
+  public:
+    
+    WLEDSync();
+
+    void send(audioSyncPacket transmitData);
+};
 #endif
