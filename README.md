@@ -5,3 +5,5 @@ Got an existing WLED 0.14 with AudioRective UserMod or WLED-SR setup, but want t
 Have an existing project with FFT audio analysis that you want to add WLED devices to?
 
 Then this is the library for you, see two examples
+
+If you do use this libray in your project, I would love to heart from you, please email will - at - netmindz.net
