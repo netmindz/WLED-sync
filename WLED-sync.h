@@ -1,6 +1,7 @@
 /**
  * @brief WLED Audio Sync
- * 
+ * Author: Will Tatam
+ * https://creativecommons.org/licenses/by/4.0/
  */
 #ifndef WLEDSYNC_H_
 #define WLEDSYNC_H_

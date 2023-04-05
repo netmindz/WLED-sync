@@ -1,3 +1,9 @@
+/**
+ * @brief WLED Audio Sync
+ * Author: Will Tatam
+ * https://creativecommons.org/licenses/by/4.0/
+ */
+
 #include "WLED-sync.h"
 
     
