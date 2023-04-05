@@ -5,7 +5,9 @@
  */
 
 #include "WLED-sync.h"
-
+#if defined(ESP8266) // ESP8266
+#include <ESP8266WiFi.h>
+#endif
     
 static bool isValidUdpSyncVersion(const char *header) {
   return strncmp_P(header, PSTR(UDP_SYNC_HEADER), 6) == 0;
@@ -26,7 +28,11 @@ void WLEDSync::begin() {
 }
 
 void WLEDSync::send(audioSyncPacket transmitData) {
+  #ifndef ESP8266
     fftUdp.beginMulticastPacket();
+  #else
+    fftUdp.beginPacketMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT, WiFi.localIP());
+  #endif
     fftUdp.write(reinterpret_cast<uint8_t *>(&transmitData), sizeof(transmitData));
     fftUdp.endPacket();
 }
