@@ -88,12 +88,11 @@ void loop() {
   if (newReading) {
     audioSyncPacket transmitData;
 
-    for (int b = 0; b < 14; b = b + 2) {
-      int val = MSGEQ7.get((b / 2));
+    for (int b = 0; b < NUM_GEQ_CHANNELS; b+) {
+      int val = MSGEQ7.get(map(b, 0, (NUM_GEQ_CHANNELS - 1), 0, 6));
       val = mapNoise(val);
       Serial.printf("%u ", val);
       transmitData.fftResult[b] = val;
-      transmitData.fftResult[(b + 1)] = val;  
     }
     Serial.println();
 
