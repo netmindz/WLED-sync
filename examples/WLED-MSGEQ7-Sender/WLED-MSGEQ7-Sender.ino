@@ -65,10 +65,10 @@ void loop() {
     for (int b = 0; b < NUM_GEQ_CHANNELS; b++) {
       int val = MSGEQ7.get(map(b, 0, (NUM_GEQ_CHANNELS - 1), 0, 6));
       val = mapNoise(val);
-      Serial.printf("%u ", val);
+//      Serial.printf("%u ", val);
       transmitData.fftResult[b] = val;
     }
-    Serial.println();
+//    Serial.println();
 
     int v = map(MSGEQ7.getVolume(), 0, MSGEQ7_OUT_MAX, 0, 1023); // TODO: not sure this is right
     transmitData.sampleRaw = v; // Current sample
