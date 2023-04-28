@@ -33,6 +33,7 @@ void WLEDSync::send(audioSyncPacket transmitData) {
   #else
     fftUdp.beginPacketMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT, WiFi.localIP());
   #endif
+    strncpy_P(transmitData.header, UDP_SYNC_HEADER, 6);
     fftUdp.write(reinterpret_cast<uint8_t *>(&transmitData), sizeof(transmitData));
     fftUdp.endPacket();
 }
