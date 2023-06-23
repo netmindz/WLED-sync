@@ -8,7 +8,10 @@
 #if defined(ESP8266) // ESP8266
 #include <ESP8266WiFi.h>
 #endif
-    
+
+#define UDPSOUND_MAX_PACKET 96 // max packet size for audiosync, with a bit of "headroom"
+uint8_t fftUdpBuffer[UDPSOUND_MAX_PACKET+1] = { 0 }; // static buffer for receiving
+
 static bool isValidUdpSyncVersion(const char *header) {
   return strncmp_P(header, PSTR(UDP_SYNC_HEADER), 6) == 0;
 }
@@ -44,29 +47,25 @@ bool WLEDSync::read()   // check & process new data. return TRUE in case that ne
   bool haveFreshData = false;
 
   size_t packetSize = fftUdp.parsePacket();
-  if (packetSize > 5) {
+  if ((packetSize > 0) && ((packetSize < 5) || (packetSize > UDPSOUND_MAX_PACKET))) fftUdp.flush(); // discard invalid packets (too small or too big)
+  if ((packetSize > 5) && (packetSize <= UDPSOUND_MAX_PACKET)) {
     //DEBUGSR_PRINTLN("Received UDP Sync Packet");
-    uint8_t fftBuff[packetSize];
-    fftUdp.read(fftBuff, packetSize);
+    fftUdp.read(fftUdpBuffer, packetSize);
 
     // VERIFY THAT THIS IS A COMPATIBLE PACKET
-    if (packetSize == sizeof(audioSyncPacket) && (isValidUdpSyncVersion((const char *)fftBuff))) {
-      WLEDSync::decodeAudioData(packetSize, fftBuff);
+    if (packetSize == sizeof(audioSyncPacket) && (isValidUdpSyncVersion((const char *)fftUdpBuffer))) {
+      decodeAudioData(packetSize, fftUdpBuffer);
       //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v2");
       haveFreshData = true;
       receivedFormat = 2;
-    }
-    else {
-      if (packetSize == sizeof(audioSyncPacket_v1) && (isValidUdpSyncVersion_v1((const char *)fftBuff))) {
-        WLEDSync::decodeAudioData_v1(packetSize, fftBuff);
+    } else {
+      if (packetSize == sizeof(audioSyncPacket_v1) && (isValidUdpSyncVersion_v1((const char *)fftUdpBuffer))) {
+        decodeAudioData_v1(packetSize, fftUdpBuffer);
         //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v1");
         haveFreshData = true;
         receivedFormat = 1;
       } else receivedFormat = 0; // unknown format
     }
-  }
-  else if(packetSize > 0) {
-    Serial.println("packetSize=" + packetSize);
   }
   return haveFreshData;
 }
