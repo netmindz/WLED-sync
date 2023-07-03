@@ -6,4 +6,4 @@ Have an existing project with FFT audio analysis that you want to add WLED devic
 
 Then this is the library for you, see two examples
 
-If you do use this libray in your project, I would love to heart from you, please email will - at - netmindz.net
+If you do use this libray in your project, I would love to hear from you, please email will - at - netmindz.net
