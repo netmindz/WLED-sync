@@ -7,3 +7,9 @@ Have an existing project with FFT audio analysis that you want to add WLED devic
 Then this is the library for you, see two examples
 
 If you do use this libray in your project, I would love to hear from you, please email will - at - netmindz.net
+
+## See Also
+
+Stream WLED audio data from your PC with https://github.com/Victoare/SR-WLED-audio-server-win
+
+Use WLED audio data with [Chataigne](http://benjamin.kuperberg.fr/chataigne/en#home) (Artist-friendly Modular Machine for Art and Technology) using https://github.com/zak-45/WLEDAudioSync-Chataigne-Module
