@@ -28,6 +28,7 @@ void WLEDSync::begin() {
   #else
     udpSyncConnected = fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
   #endif
+  lastPacketTime = 0;
 }
 
 void WLEDSync::send(audioSyncPacket transmitData) {
@@ -39,6 +40,7 @@ void WLEDSync::send(audioSyncPacket transmitData) {
     strncpy_P(transmitData.header, UDP_SYNC_HEADER, 6);
     fftUdp.write(reinterpret_cast<uint8_t *>(&transmitData), sizeof(transmitData));
     fftUdp.endPacket();
+    lastPacketTime = millis();
 }
 
 bool WLEDSync::read()   // check & process new data. return TRUE in case that new audio data was received. 
@@ -58,13 +60,18 @@ bool WLEDSync::read()   // check & process new data. return TRUE in case that ne
       //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v2");
       haveFreshData = true;
       receivedFormat = 2;
+      lastPacketTime = millis();
     } else {
       if (packetSize == sizeof(audioSyncPacket_v1) && (isValidUdpSyncVersion_v1((const char *)fftUdpBuffer))) {
         decodeAudioData_v1(packetSize, fftUdpBuffer);
         //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v1");
         haveFreshData = true;
         receivedFormat = 1;
-      } else receivedFormat = 0; // unknown format
+        lastPacketTime = millis();
+      } 
+      else {
+        receivedFormat = 0; // unknown format
+      }
     }
   }
   return haveFreshData;
