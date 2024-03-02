@@ -61,6 +61,7 @@ class WLEDSync {
   public:
     int receivedFormat = -1;            // last received UDP sound sync format - 0=none, 1=v1 (0.13.x), 2=v2 (0.14.x)
     unsigned long lastPacketTime = 0;
+    IPAddress sourceIP;
     uint8_t fftResult[NUM_GEQ_CHANNELS]= {0};// Our calculated freq. channel result table to be used by effects
     float FFT_MajorPeak = 1.0f;   // FFT: strongest (peak) frequency
     float FFT_Magnitude = 0.0f;   // FFT: volume (magnitude) of peak frequency

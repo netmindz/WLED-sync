@@ -53,6 +53,7 @@ bool WLEDSync::read()   // check & process new data. return TRUE in case that ne
   if ((packetSize > 5) && (packetSize <= UDPSOUND_MAX_PACKET)) {
     //DEBUGSR_PRINTLN("Received UDP Sync Packet");
     fftUdp.read(fftUdpBuffer, packetSize);
+    sourceIP = fftUdp.remoteIP();
 
     // VERIFY THAT THIS IS A COMPATIBLE PACKET
     if (packetSize == sizeof(audioSyncPacket) && (isValidUdpSyncVersion((const char *)fftUdpBuffer))) {
