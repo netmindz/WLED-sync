@@ -14,15 +14,17 @@
 #define UDP_SYNC_PORT 11988
 #define NUM_GEQ_CHANNELS 16  // number of frequency channels. Don't change !!
 
-struct audioSyncPacket {
-  char    header[6];      //  06 Bytes
-  float   sampleRaw;      //  04 Bytes  - either "sampleRaw" or "rawSampleAgc" depending on soundAgc setting
-  float   sampleSmth;     //  04 Bytes  - either "sampleAvg" or "sampleAgc" depending on soundAgc setting
-  uint8_t samplePeak;     //  01 Bytes  - 0 no peak; >=1 peak detected. In future, this will also provide peak Magnitude
-  uint8_t reserved1;      //  01 Bytes  - for future extensions - not used yet
-  uint8_t fftResult[16];  //  16 Bytes
-  float  FFT_Magnitude;   //  04 Bytes
-  float  FFT_MajorPeak;   //  04 Bytes
+struct __attribute__ ((packed)) audioSyncPacket {  // WLEDMM "packed" ensures that there are no additional gaps
+  char    header[6];      //  06 Bytes  offset 0
+  uint8_t gap1[2];        // gap added by compiler: 02 Bytes, offset 6
+  float   sampleRaw;      //  04 Bytes  offset 8  - either "sampleRaw" or "rawSampleAgc" depending on soundAgc setting
+  float   sampleSmth;     //  04 Bytes  offset 12 - either "sampleAvg" or "sampleAgc" depending on soundAgc setting
+  uint8_t samplePeak;     //  01 Bytes  offset 16 - 0 no peak; >=1 peak detected. In future, this will also provide peak Magnitude
+  uint8_t frameCounter;   //  01 Bytes  offset 17 - track duplicate/out of order packets
+  uint8_t fftResult[16];  //  16 Bytes  offset 18
+  uint8_t gap2[2];        // gap added by compiler: 02 Bytes, offset 34
+  float  FFT_Magnitude;   //  04 Bytes  offset 36
+  float  FFT_MajorPeak;   //  04 Bytes  offset 40
 };
 
 // old "V1" audiosync struct - 83 Bytes - for backwards compatibility
