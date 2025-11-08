@@ -49,7 +49,12 @@ bool WLEDSync::read()   // check & process new data. return TRUE in case that ne
   bool haveFreshData = false;
 
   size_t packetSize = fftUdp.parsePacket();
-  if ((packetSize > 0) && ((packetSize < 5) || (packetSize > UDPSOUND_MAX_PACKET))) fftUdp.flush(); // discard invalid packets (too small or too big)
+  if ((packetSize > 0) && ((packetSize < 5) || (packetSize > UDPSOUND_MAX_PACKET))) 
+    #if ESP_ARDUINO_VERSION_MAJOR >= 3
+      fftUdp.clear(); // discard invalid packets (too small or too big)
+    #else
+      fftUdp.flush(); // discard invalid packets (too small or too big)
+    #endif
   if ((packetSize > 5) && (packetSize <= UDPSOUND_MAX_PACKET)) {
     //DEBUGSR_PRINTLN("Received UDP Sync Packet");
     fftUdp.read(fftUdpBuffer, packetSize);
