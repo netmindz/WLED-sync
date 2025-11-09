@@ -20,14 +20,12 @@ static bool isValidUdpSyncVersion_v1(const char *header) {
 }
 
 WLEDSync::WLEDSync() {
+  lastWiFiConnected = false;
 }
 
 void WLEDSync::begin() {
-  #ifndef ESP8266
-    udpSyncConnected = fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
-  #else
-    udpSyncConnected = fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
-  #endif
+  initializeUdp();
+  lastWiFiConnected = (WiFi.status() == WL_CONNECTED);
   lastPacketTime = 0;
 }
 
@@ -45,7 +43,12 @@ void WLEDSync::send(audioSyncPacket transmitData) {
 
 bool WLEDSync::read()   // check & process new data. return TRUE in case that new audio data was received. 
 {
-  if (!udpSyncConnected) return false;
+  // Handle WiFi state changes (reconnection/disconnection)
+  handleWiFiStateChange();
+  
+  // Check if WiFi is connected and UDP is initialized
+  if (!udpSyncConnected || WiFi.status() != WL_CONNECTED) return false;
+  
   bool haveFreshData = false;
 
   size_t packetSize = fftUdp.parsePacket();
@@ -147,4 +150,30 @@ void WLEDSync::autoResetPeak(void) {
     if (audioSyncEnabled == 0) udpSamplePeak = false;  // this is normally reset by transmitAudioData
   }
 }
+
+void WLEDSync::initializeUdp(void) {
+  #ifndef ESP8266
+    udpSyncConnected = fftUdp.beginMulticast(IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
+  #else
+    udpSyncConnected = fftUdp.beginMulticast(WiFi.localIP(), IPAddress(239, 0, 0, 1), UDP_SYNC_PORT);
+  #endif
+}
+
+void WLEDSync::handleWiFiStateChange(void) {
+  bool currentWiFiConnected = (WiFi.status() == WL_CONNECTED);
+  
+  // WiFi just reconnected - reinitialize UDP
+  if (currentWiFiConnected && !lastWiFiConnected) {
+    fftUdp.stop();  // Stop the old UDP connection
+    initializeUdp();
+  }
+  // WiFi just disconnected - stop UDP
+  else if (!currentWiFiConnected && lastWiFiConnected) {
+    fftUdp.stop();
+    udpSyncConnected = false;
+  }
+  
+  lastWiFiConnected = currentWiFiConnected;
+}
+
 

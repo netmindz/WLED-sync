@@ -45,6 +45,7 @@ class WLEDSync {
   private:
     WiFiUDP fftUdp;
     bool udpSyncConnected;
+    bool lastWiFiConnected;  // Track last WiFi connection state
 
     bool audioSyncEnabled = true; // not actually an option, but kept here to keep code in sync with UserMod
 
@@ -57,6 +58,8 @@ class WLEDSync {
     void decodeAudioData(int packetSize, uint8_t *fftBuff);
     void decodeAudioData_v1(int packetSize, uint8_t *fftBuff);
     void autoResetPeak(void);
+    void handleWiFiStateChange(void);
+    void initializeUdp(void);
 
   public:
     int receivedFormat = -1;            // last received UDP sound sync format - 0=none, 1=v1 (0.13.x), 2=v2 (0.14.x)
