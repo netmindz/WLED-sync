@@ -41,7 +41,7 @@ void WLEDSync::send(audioSyncPacket transmitData) {
     lastPacketTime = millis();
 }
 
-bool WLEDSync::read()   // check & process new data. return TRUE in case that new audio data was received. 
+bool WLEDSync::read() // check & process new data. return TRUE in case that new audio data was received.
 {
   // Handle WiFi state changes (reconnection/disconnection)
   handleWiFiStateChange();
@@ -50,37 +50,46 @@ bool WLEDSync::read()   // check & process new data. return TRUE in case that ne
   if (!udpSyncConnected || WiFi.status() != WL_CONNECTED) return false;
   
   bool haveFreshData = false;
+  size_t packetSize = 0;
+  static uint8_t fftUdpBuffer[UDPSOUND_MAX_PACKET + 1] = { 0 };
+  size_t lastValidPacketSize = 0;
 
-  size_t packetSize = fftUdp.parsePacket();
-  if ((packetSize > 0) && ((packetSize < 5) || (packetSize > UDPSOUND_MAX_PACKET))) 
-    #if ESP_ARDUINO_VERSION_MAJOR >= 3
+  // Drain all packets, keep only the last valid one
+  while (true) {
+    packetSize = fftUdp.parsePacket();
+    if (packetSize == 0) break; // no more packets
+
+    if ((packetSize > 5) && (packetSize <= UDPSOUND_MAX_PACKET)) {
+      fftUdp.read(fftUdpBuffer, packetSize);
+      sourceIP = fftUdp.remoteIP();   // track sender of last packet
+      lastValidPacketSize = packetSize;
+    } else {
+      #if ESP_ARDUINO_VERSION_MAJOR >= 3
       fftUdp.clear(); // discard invalid packets (too small or too big)
-    #else
+      #else
       fftUdp.flush(); // discard invalid packets (too small or too big)
-    #endif
-  if ((packetSize > 5) && (packetSize <= UDPSOUND_MAX_PACKET)) {
-    //DEBUGSR_PRINTLN("Received UDP Sync Packet");
-    fftUdp.read(fftUdpBuffer, packetSize);
-    sourceIP = fftUdp.remoteIP();
+      #endif
+    }
+  }
 
-    // VERIFY THAT THIS IS A COMPATIBLE PACKET
-    if (packetSize == sizeof(audioSyncPacket) && (isValidUdpSyncVersion((const char *)fftUdpBuffer))) {
-      decodeAudioData(packetSize, fftUdpBuffer);
+  if (lastValidPacketSize > 0) {
+    //DEBUGSR_PRINTLN("Received UDP Sync Packet");
+    if (lastValidPacketSize == sizeof(audioSyncPacket) &&
+      isValidUdpSyncVersion((const char*)fftUdpBuffer)) {
+      decodeAudioData(lastValidPacketSize, fftUdpBuffer);
       //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v2");
-      haveFreshData = true;
       receivedFormat = 2;
+      haveFreshData = true;
+      lastPacketTime = millis();
+    } else if (lastValidPacketSize == sizeof(audioSyncPacket_v1) &&
+      isValidUdpSyncVersion_v1((const char*)fftUdpBuffer)) {
+      decodeAudioData_v1(lastValidPacketSize, fftUdpBuffer);
+      //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v1");
+      receivedFormat = 1;
+      haveFreshData = true;
       lastPacketTime = millis();
     } else {
-      if (packetSize == sizeof(audioSyncPacket_v1) && (isValidUdpSyncVersion_v1((const char *)fftUdpBuffer))) {
-        decodeAudioData_v1(packetSize, fftUdpBuffer);
-        //DEBUGSR_PRINTLN("Finished parsing UDP Sync Packet v1");
-        haveFreshData = true;
-        receivedFormat = 1;
-        lastPacketTime = millis();
-      } 
-      else {
-        receivedFormat = 0; // unknown format
-      }
+      receivedFormat = 0; // unknown format
     }
   }
   return haveFreshData;
