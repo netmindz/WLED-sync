@@ -8,6 +8,14 @@ Then this is the library for you, see two examples
 
 If you do use this libray in your project, I would love to hear from you, please email will - at - netmindz.net
 
+## ESPHome
+
+Prefer ESPHome over the Arduino library? `esphome/components/wled_sync/` is an
+ESPHome external component that receives the same UDP sound-sync data and
+exposes it as `sensor`/`binary_sensor` entities (volume, FFT magnitude/major
+peak, beat detection). See `esphome/test/wled-sync-receiver.yaml` for a
+working example config. Currently targets ESP32 with the ESP-IDF framework.
+
 ## See Also
 
 Stream WLED audio data from your PC with https://github.com/Victoare/SR-WLED-audio-server-win
