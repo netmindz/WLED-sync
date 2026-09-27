@@ -1,0 +1,36 @@
+esphome:
+  name: wled-sync-receiver
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+
+logger:
+
+wifi:
+  ssid: "test"
+  password: "testtest"
+  power_save_mode: none
+
+wled_sync:
+  id: sync_in
+
+sensor:
+  - platform: wled_sync
+    wled_sync_id: sync_in
+    volume_smth:
+      name: "WLED Sync Volume"
+    fft_major_peak:
+      name: "WLED Sync Major Peak"
+
+binary_sensor:
+  - platform: wled_sync
+    wled_sync_id: sync_in
+    beat:
+      name: "WLED Sync Beat"
